@@ -2,6 +2,8 @@
 
 Never live code again! Type it up ahead of time in a simple format, then replay it for 100% typing accuracy each time. Especially helpful for making interactive tutorials or for recording educational videos perfectly the first time.
 
+**Note: This is a fork of [auto-type](https://github.com/eee-c/auto-type). Thank you to [Chris](https://github.com/eee-c) for your work on this!
+
 ## Features
 
 In addition to typing code, Auto Coder can :
