@@ -1,10 +1,13 @@
 {
-    "name": "auto-type",
-    "displayName": "auto-type",
-    "description": "Auto-type code from a script",
+    "name": "auto-coder",
+    "displayName": "Auto Coder",
+    "description": "Automatically write code from a script, record tutorials or videos using automated live coding, and teach programming with scripted guides.",
     "version": "0.1.0",
-    "publisher": "eeecomputes",
-    "repository": "https://github.com/eee-c/auto-type",
+    "publisher": "BradyDowling",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bradydowling/auto-coder"
+    },
     "engines": {
         "vscode": "^1.27.0"
     },
