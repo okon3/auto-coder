@@ -1,7 +1,7 @@
 {
     "name": "auto-coder",
     "displayName": "Auto Coder",
-    "description": "Automatically write code from a script, record tutorials or videos using automated live coding, and teach programming with scripted guides.",
+    "description": "Automatically write code from a script, record and replay tutorials or videos using automated live coding, and teach programming with scripted guides.",
     "version": "0.1.0",
     "publisher": "BradyDowling",
     "repository": {

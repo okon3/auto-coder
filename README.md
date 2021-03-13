@@ -1,21 +1,21 @@
-# auto-type
+# Auto Coder
 
-Never live code again! Type it up ahead of time in a simple format, then replay it for 100% typing accuracy each time.
+Never live code again! Type it up ahead of time in a simple format, then replay it for 100% typing accuracy each time. Especially helpful for making interactive tutorials or for recording educational videos perfectly the first time.
 
 ## Features
 
-In addition to typing code, auto-type can :
+In addition to typing code, Auto Coder can :
 
 * move the cursor left and right
 * move the cursor up and down
 * Move the cursor to the beginning and end of the line
 * delete characters
 
-Here is auto-type in action:
+Here is Auto Coder in action:
 
-![A simple auto type script in action](https://raw.githubusercontent.com/eee-c/auto-type/master/images/basic_auto_type.gif)
+![A simple Auto Coder script in action](https://raw.githubusercontent.com/eee-c/auto-type/master/images/basic_auto_type.gif)
 
-To use auto-type, you type up the script you want to follow, one page at a time. The script pages are stored in the `.auto-type` directory in the root folder of your project. The script pages are ordered by filename.
+To use Auto Coder, you type up the script you want to follow, one page at a time. The script pages are stored in the `.auto-type` directory in the root folder of your project. The script pages are ordered by filename.
 
 > Tip: To order your pages, give each page a name that starts with a number like `001-description`, `002-description-of-page-2`, etc.
 
@@ -48,7 +48,7 @@ Front-matter goes at the top of the script page, above the triple-dash separator
 * `col` - the column number of start at (optional, defaults to `1`)
 * `align` - where to position the active line in the editor viewport (optional, defaults to `middle`, can also be set to `top`)
 
-> IMPORTANT: the file should already be open in VS Code when starting the script. Don't rely on auto-type to open it!
+> IMPORTANT: the file should already be open in VS Code when starting the script. Don't rely on Auto Coder to open it!
 
 > Tip: Use `col` sparingly. It's more realistic to start at the beginning of the line, then arrow over to the place you want to start typing (see `Script Content` below)
 
@@ -65,7 +65,7 @@ var cacheName = 'weatherPWA-step-6-1';
 var filesToCache = [];
 ```
 
-The real power of auto-type comes from it's active unicode support. Following is the list of active unicode characters supported by auto-type:
+The real power of Auto Coder comes from it's active unicode support. Following is the list of active unicode characters supported by Auto Coder:
 
 | Character | Name | Description |
 |:---------:|------|-------------|
@@ -83,7 +83,7 @@ The real power of auto-type comes from it's active unicode support. Following is
 
 ### More Examples
 
-A complete auto-type reference repo is available at https://github.com/eee-c/your-first-pwa. That repo has 5 different scripts, each with multiple pages, in five tags listed in the README.
+A complete Auto Coder reference repo is available at https://github.com/eee-c/your-first-pwa. That repo has 5 different scripts, each with multiple pages, in five tags listed in the README.
 
 ### Running Script Pages
 
@@ -103,12 +103,12 @@ There are no supported settings yet.
 
 This is a very early release. It likely does not work on Windows yet with CRLF newlines and probably doesn't work with Windows file paths.
 
-auto-type does not:
+Auto Coder does not:
 
 * trigger code completion
 * trigger auto-termination of blocks (e.g. the closing parenthesis when the opening parenthesis is typed)
 
-auto-type uses VS Code's insert API to "type." In other words, it copies and pastes code, one character at a time.
+Auto Coder uses VS Code's insert API to "type." In other words, it copies and pastes code, one character at a time.
 
 ## Release Notes
 
@@ -120,3 +120,9 @@ Initial beta release. Minimal viable features:
 * Up/down cursor movement
 * Beginning/end of line movement
 * Delete
+
+## Similar Extensions
+- [auto-type](https://github.com/eee-c/auto-type) (this is a direct fork of auto-type)
+- [Codio](https://github.com/wix-incubator/codio)
+- [Hacker Typer](https://github.com/nodename/vscode-hacker-typer)
+- [Typewriter Noises](https://github.com/timmyreilly/TypewriterNoises-VSCode)
