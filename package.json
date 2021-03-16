@@ -30,7 +30,19 @@
                 "command": "extension.resetCodeScript",
                 "title": "Restart Code Script"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Auto Coder",
+            "properties": {
+                "autoCoder.soundEffects": {
+                    "type": "string",
+                    "description": "Choose a type of sound effect to play when new characters are inserted (this can help give the effect of actual typing)",
+                    "default": "none",
+                    "enum": ["none", "keyboard", "typewriter", "hacker"]
+                  }
+            }
+        }
     },
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
