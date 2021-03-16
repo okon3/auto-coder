@@ -123,8 +123,11 @@ Initial beta release. Minimal viable features:
 * Beginning/end of line movement
 * Delete
 
-## Similar Extensions
+## Similar Extensions/Inspiration
 - [auto-type](https://github.com/eee-c/auto-type) (this is a direct fork of auto-type)
+- [Typewriter for VSCode (Human like typing for GIFs and live demos)](https://github.com/dan-silver/typewriter-for-vscode)
 - [Codio](https://github.com/wix-incubator/codio)
 - [Hacker Typer](https://github.com/nodename/vscode-hacker-typer)
 - [Typewriter Noises](https://github.com/timmyreilly/TypewriterNoises-VSCode)
+- [Hacker Sounds](https://github.com/mattogodoy/hacker-sounds)
+- [Aurual Coding](https://github.com/jengjeng/aural-coding-vscode)
