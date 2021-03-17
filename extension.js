@@ -2,6 +2,9 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const fs = require('fs');
+const path = require('path');
+
+// TODO: Add eslint/prettier
 
 let currentPageNum = 0;
 var rootDir, scriptDir;
@@ -20,6 +23,10 @@ function activate(context) {
 
     context.subscriptions.push(disposable);
 
+    // TODO: Write function that instantly completes the code script (or does it really, really fast, e.g. with a 1ms delay)
+    // disposable = vscode.commands.registerCommand('extension.completeCodeScript', function () {
+    // });
+
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
@@ -32,7 +39,8 @@ function activate(context) {
       let ws = vscode.workspace;
 
       rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
-      scriptDir = rootDir + '/.auto-type';
+      const scriptDirName = '.auto-type';
+      scriptDir = rootDir + `/${scriptDirName}`; // TODO: path.join(rootDir, scriptDirName);
 
       let scriptPages;
       try {
@@ -158,6 +166,17 @@ function type(text, pos) {
 
   var _pos = pos;
   var char = text.substring(0, 1);
+  // TODO: Use strict equals everywhere
+  // TODO: Create function for typing a letter, call sound play in there
+  // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
+  /*
+  const triggerKey = () => {
+    const config = vscode.workspace.getConfiguration('auto-coder');
+    if (!config || !config.get('soundEffects')) {
+
+    }
+  }
+  */
   if (char == '↓') {
     _pos = new vscode.Position(pos.line + 1, pos.character);
     char = '';
@@ -203,9 +222,11 @@ function type(text, pos) {
 
     editor.selection = newSelection;
   }).then(function()  {
+    // TODO: Allow user specified delays here for base, and variation
     var delay = 20 + 80*Math.random();
     if (Math.random() < 0.1) delay += 250;
     var _p = new vscode.Position(_pos.line, char.length + _pos.character);
+    // TODO: Rewrite this using async/await, no recursive setTimeouts
     setTimeout(function(){ type(text.substring(1, text.length), _p); }, delay);
   });
 }
