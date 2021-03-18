@@ -162,14 +162,10 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(disposable);
 }
 
-interface ScriptPage {
+interface ScriptPage extends FrontMatter {
   name: string;
-  file: string;
   path: string;
   content: string;
-  line: number;
-  col: number;
-  align: vscode.TextEditorRevealType | undefined;
 }
 
 function loadScript(scriptDir: string): ScriptPage[] {
@@ -225,31 +221,37 @@ function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
   return options;
 }
 
-function parseFrontMatter(text: string) {
-  const options = text.split("\n").reduce((a, line) => {
-      let parts = line.split(/\s*:\s*/);
-      const part1 = parts[0];
-      // @ts-ignore
-      a[part1] = parts[1];
-      return a;
-    }, {}
-  );
-  // @ts-ignore
-  if (!options.line) {options.line = 1;}
-  // @ts-ignore
-  if (!options.col) {options.col = 1;}
-  
-  // @ts-ignore
-  options.line = parseInt(options.line, 10) - 1;
-  // @ts-ignore
-  options.col = parseInt(options.col, 10) - 1;
-  
-  // @ts-ignore
-  if (!options.align) {options.align = 'middle';}
-  // @ts-ignore
-  options.align = options.align === 'middle' ? 2 : 3;
+interface FrontMatter {
+  file: string;
+  line: number;
+  col: number;
+  align: vscode.TextEditorRevealType | undefined;
+}
 
-  return options;
+function parseFrontMatter(text: string): FrontMatter {
+  const rawOptions = text.split("\n").reduce((accumulator, line) => {
+    const [lineKey, lineVal] = line.split(/\s*:\s*/);
+    return {
+      [lineKey]: lineVal,
+      ...accumulator,
+    };
+  }, {} as {
+    [key: string]: string;
+  });
+
+  // Either parse the provided line or use 1, then 0-index it
+  const line = (rawOptions.line ? parseInt(rawOptions.line, 10) : 1) - 1;
+  const col = (rawOptions.col ? parseInt(rawOptions.col, 10) : 1) - 1;
+  
+  const align = rawOptions.align || 'middle';
+  const newAlign = align === 'middle' ? 2 : 3;
+
+  return {
+    file: rawOptions.file,
+    line,
+    col,
+    align: newAlign
+  };
 }
 
 async function timedCharacterType(text: string, pos: vscode.Position, delay: number) {
