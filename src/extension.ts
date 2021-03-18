@@ -1,5 +1,4 @@
 // The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -73,7 +72,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         vscode.window.showTextDocument(changeDoc).then(() => {
-          // @ts-ignore
             const range = changeDoc.lineAt(scriptPage.line).range;
             if (vscode.window.activeTextEditor) {
               vscode.window.activeTextEditor.selection = new vscode.Selection(range.start, range.end);
@@ -81,7 +79,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             const pos = new vscode.Position(scriptPage.line, scriptPage.col);
-            // @ts-ignore
             const changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
             type(changeText, pos);
           });
@@ -135,25 +132,22 @@ export function activate(context: vscode.ExtensionContext) {
       });
 
       Promise.all(docPromises).then(() => {
-        let docs = ws.textDocuments;
-        let changeDoc = docs.find(function(d){ return d.fileName.indexOf(scriptPage.file) > -1; });
+        const docs = ws.textDocuments;
+        const changeDoc = docs.find(doc => doc.fileName.indexOf(scriptPage.file) > -1);
 
         if (!changeDoc) {
           return;
         }
 
         vscode.window.showTextDocument(changeDoc).then(() => {
-          // @ts-ignore
             const range = changeDoc.lineAt(scriptPage.line).range;
-            // @ts-ignore
-            vscode.window.activeTextEditor.selection =  new vscode.Selection(range.start, range.end);
-            // @ts-ignore
-            vscode.window.activeTextEditor.revealRange(range, scriptPage.align);
+            if (vscode.window.activeTextEditor) {
+              vscode.window.activeTextEditor.selection =  new vscode.Selection(range.start, range.end);
+              vscode.window.activeTextEditor.revealRange(range, scriptPage.align);
+            }
 
-            // @ts-ignore
-            let pos = new vscode.Position(scriptPage.line, scriptPage.col);
-            // @ts-ignore
-            var changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
+            const pos = new vscode.Position(scriptPage.line, scriptPage.col);
+            const changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
             type(changeText, pos);
           });
       });
@@ -165,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
 interface ScriptPage extends FrontMatter {
   name: string;
   path: string;
-  content: string;
+  content: string | string[];
 }
 
 function loadScript(scriptDir: string): ScriptPage[] {
@@ -198,16 +192,12 @@ function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
   }
 
   const options = {
-    // @ts-ignore
     file: frontMatter.file,
     name: pageName,
     path: pagePath,
     content: content,
-    // @ts-ignore
     line: frontMatter.line,
-    // @ts-ignore
     col: frontMatter.col,
-    // @ts-ignore
     align: frontMatter.align,
   };
 
