@@ -15,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "auto-type" is now active!');
 
-    let disposable = vscode.commands.registerCommand('extension.resetCodeScript', function () {
+    let disposable = vscode.commands.registerCommand('extension.resetCodeScript', () => {
       currentPageNum = 0;
     });
 
@@ -85,10 +85,12 @@ export function activate(context: vscode.ExtensionContext) {
       });
     });
 
+    context.subscriptions.push(disposable);
+
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    disposable = vscode.commands.registerCommand('extension.playCodeScript', function () {
+    disposable = vscode.commands.registerCommand('extension.playCodeScript', () => {
       // The code you place here will be executed every time your command is executed
 
       let editor = vscode.window.activeTextEditor;
@@ -167,7 +169,7 @@ function loadScript(scriptDir: string): ScriptPage[] {
     vscode.window.showWarningMessage('The script directory ' + scriptDir + ' does not exist. Nothing for auto-type to do.');
     return [];
   }
-  let pages = fs.readdirSync(scriptDir);
+  const pages = fs.readdirSync(scriptDir);
   if (!pages.length) {
     vscode.window.showWarningMessage('No script pages found in ' + scriptDir + '. Nothing for auto-type to do.');
     return [];
@@ -178,9 +180,9 @@ function loadScript(scriptDir: string): ScriptPage[] {
 }
 
 function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
-  let pagePath = scriptDir + '/' + pageName;
-  let fullContent = fs.readFileSync(pagePath, {encoding: 'utf-8'});
-  let parts = fullContent.split(/\n\-\-\-\n/m);
+  const pagePath = scriptDir + '/' + pageName;
+  const fullContent = fs.readFileSync(pagePath, {encoding: 'utf-8'});
+  const parts = fullContent.split(/\n\-\-\-\n/m);
 
   let frontMatter, content;
   try {
