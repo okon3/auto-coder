@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
       let docPromises = files.map(file => {
         let fqfn = (file.indexOf('/') === 0) ? file : rootDir + '/' + file;
         return ws.openTextDocument(fqfn).
-                  then(function(doc){
+                  then(doc => {
                     vscode.window.showTextDocument(doc, {preview: false});
                   });
       });
@@ -172,7 +172,7 @@ function loadScript(scriptDir: string): ScriptPage[] {
     vscode.window.showWarningMessage('No script pages found in ' + scriptDir + '. Nothing for auto-type to do.');
     return [];
   }
-  return pages.map(function(pageName) {
+  return pages.map(pageName => {
     return parseScriptPage(pageName, scriptDir);
   });
 }
@@ -182,7 +182,7 @@ function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
   let fullContent = fs.readFileSync(pagePath, {encoding: 'utf-8'});
   let parts = fullContent.split(/\n\-\-\-\n/m);
 
-  var frontMatter, content;
+  let frontMatter, content;
   try {
     frontMatter = parseFrontMatter(parts[0]);
     content = parts[1];
@@ -249,8 +249,8 @@ async function timedCharacterType(text: string, pos: vscode.Position, delay: num
   
   if (!editor || !text || text.length === 0) {return;}
 
-  var _pos = pos;
-  var char = text.substring(0, 1);
+  let _pos = pos;
+  let char = text.substring(0, 1);
   // TODO: Use strict equals everywhere
   // TODO: Create function for typing a letter, call sound play in there
   // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
@@ -287,7 +287,7 @@ async function timedCharacterType(text: string, pos: vscode.Position, delay: num
     char = '';
   }
 
-  await editor.edit(function(editBuilder) {
+  await editor.edit(editBuilder => {
     if (char !== '⌫') {
       editBuilder.insert(_pos, char);
     }
@@ -298,7 +298,7 @@ async function timedCharacterType(text: string, pos: vscode.Position, delay: num
       char = '';
     }
 
-    var newSelection = new vscode.Selection(_pos, _pos);
+    let newSelection = new vscode.Selection(_pos, _pos);
     if (char === "\n") {
       newSelection = new vscode.Selection(pos, pos);
       _pos = new vscode.Position(pos.line + 1, 0);
@@ -323,8 +323,8 @@ function type(text: string, pos: vscode.Position) {
   
   if (!editor || !text || text.length === 0) {return;}
 
-  var _pos = pos;
-  var char = text.substring(0, 1);
+  let _pos = pos;
+  let char = text.substring(0, 1);
   // TODO: Create function for typing a letter, call sound play in there
   // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
   /*
@@ -360,7 +360,7 @@ function type(text: string, pos: vscode.Position) {
     char = '';
   }
 
-  editor.edit(function(editBuilder) {
+  editor.edit(editBuilder => {
     if (char !== '⌫') {
       editBuilder.insert(_pos, char);
     }
@@ -371,7 +371,7 @@ function type(text: string, pos: vscode.Position) {
       char = '';
     }
 
-    var newSelection = new vscode.Selection(_pos, _pos);
+    let newSelection = new vscode.Selection(_pos, _pos);
     if (char === "\n") {
       newSelection = new vscode.Selection(pos, pos);
       _pos = new vscode.Position(pos.line + 1, 0);
@@ -379,15 +379,17 @@ function type(text: string, pos: vscode.Position) {
     }
 
     editor.selection = newSelection;
-  }).then(function()  {
+  }).then(() => {
     // TODO: Allow user specified delays here for base, and variation
     const baseDelay = 20;
     const variableDelay = 80;
-    var delay = baseDelay + variableDelay * Math.random();
+    let delay = baseDelay + variableDelay * Math.random();
     if (Math.random() < 0.1) {delay += 250;}
-    var _p = new vscode.Position(_pos.line, char.length + _pos.character);
+    const _p = new vscode.Position(_pos.line, char.length + _pos.character);
     // TODO: Rewrite this using async/await, no recursive setTimeouts
-    setTimeout(function(){ type(text.substring(1, text.length), _p); }, delay);
+    setTimeout(() => {
+      type(text.substring(1, text.length), _p);
+    }, delay);
   });
 }
 
