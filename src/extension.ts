@@ -3,8 +3,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// TODO: Add eslint/prettier
-
 let currentPageNum = 0;
 
 // this method is called when your extension is activated
@@ -104,7 +102,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
       const scriptDirName = '.auto-type';
-      const scriptDir = rootDir + `/${scriptDirName}`; // TODO: path.join(rootDir, scriptDirName);
+      const scriptDir = path.join(rootDir, scriptDirName);
 
       let scriptPages;
       try {
@@ -126,7 +124,7 @@ export function activate(context: vscode.ExtensionContext) {
       let files = scriptPages.map(scriptPage => scriptPage.file );
 
       let docPromises = files.map(file => {
-        let fqfn = (file.indexOf('/') === 0) ? file : rootDir + '/' + file;
+        let fqfn = (file.indexOf('/') === 0) ? file : path.join(rootDir, file);
         return ws.openTextDocument(fqfn).
                   then(doc => {
                     vscode.window.showTextDocument(doc, {preview: false});
@@ -166,12 +164,12 @@ interface ScriptPage extends FrontMatter {
 
 function loadScript(scriptDir: string): ScriptPage[] {
   if (!fs.existsSync(scriptDir)) {
-    vscode.window.showWarningMessage('The script directory ' + scriptDir + ' does not exist. Nothing for auto-type to do.');
+    vscode.window.showWarningMessage(`The script directory ${scriptDir} does not exist. Nothing for auto-type to do.`);
     return [];
   }
   const pages = fs.readdirSync(scriptDir);
   if (!pages.length) {
-    vscode.window.showWarningMessage('No script pages found in ' + scriptDir + '. Nothing for auto-type to do.');
+    vscode.window.showWarningMessage(`No script pages found in ${scriptDir}. Nothing for auto-type to do.`);
     return [];
   }
   return pages.map(pageName => {
@@ -180,7 +178,7 @@ function loadScript(scriptDir: string): ScriptPage[] {
 }
 
 function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
-  const pagePath = scriptDir + '/' + pageName;
+  const pagePath = path.join(scriptDir, pageName);
   const fullContent = fs.readFileSync(pagePath, {encoding: 'utf-8'});
   const parts = fullContent.split(/\n\-\-\-\n/m);
 
@@ -190,7 +188,7 @@ function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
     content = parts[1];
   }
   catch (e) {
-    throw new Error(e + ' in script page ' + pagePath);
+    throw new Error(`${e} in script page ${pagePath}`);
   }
 
   const options = {
@@ -207,7 +205,7 @@ function parseScriptPage(pageName: string, scriptDir: string): ScriptPage {
     throw new Error("Missing file property");
   }
   if (!fs.existsSync(options.file) && !fs.existsSync(scriptDir + '/../' + options.file)) {
-    throw new Error("Can't find target file " + options.file);
+    throw new Error(`Can't find target file  ${options.file}`);
   }
 
   return options;
@@ -235,6 +233,7 @@ function parseFrontMatter(text: string): FrontMatter {
   const line = (rawOptions.line ? parseInt(rawOptions.line, 10) : 1) - 1;
   const col = (rawOptions.col ? parseInt(rawOptions.col, 10) : 1) - 1;
   
+  // See https://code.visualstudio.com/api/references/vscode-api#TextEditorRevealType
   const align = rawOptions.align || 'middle';
   const newAlign = align === 'middle' ? 2 : 3;
 
@@ -253,7 +252,6 @@ async function timedCharacterType(text: string, pos: vscode.Position, delay: num
 
   let _pos = pos;
   let char = text.substring(0, 1);
-  // TODO: Use strict equals everywhere
   // TODO: Create function for typing a letter, call sound play in there
   // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
   /*
