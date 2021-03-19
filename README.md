@@ -107,21 +107,24 @@ This is a very early release. It likely does not work on Windows yet with CRLF n
 
 Auto Coder does not:
 
-* trigger code completion
-* trigger auto-termination of blocks (e.g. the closing parenthesis when the opening parenthesis is typed)
+- trigger code completion
+- trigger auto-termination of blocks (e.g. the closing parenthesis when the opening parenthesis is typed)
 
 Auto Coder uses VS Code's insert API to "type." In other words, it copies and pastes code, one character at a time.
 
 ## Release Notes
 
+### 0.3.0
+- Add preferences for typing speed
+
 ### 0.1.0
 
 Initial beta release. Minimal viable features:
 
-* Left/right cursor movement
-* Up/down cursor movement
-* Beginning/end of line movement
-* Delete
+- Left/right cursor movement
+- Up/down cursor movement
+- Beginning/end of line movement
+- Delete
 
 ## Similar Extensions/Inspiration
 - [auto-type](https://github.com/eee-c/auto-type) (this is a direct fork of auto-type)
