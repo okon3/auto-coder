@@ -318,12 +318,12 @@ function pause(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function type(text: string, pos: vscode.Position) {
+function type(text: string, currentPosition: vscode.Position) {
   const editor = vscode.window.activeTextEditor;
   
   if (!editor || !text || text.length === 0) {return;}
 
-  let _pos = pos;
+  let newPosition = currentPosition;
   let char = text.substring(0, 1);
   // TODO: Create function for typing a letter, call sound play in there
   // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
@@ -336,56 +336,55 @@ function type(text: string, pos: vscode.Position) {
   }
   */
   if (char === '↓') {
-    _pos = new vscode.Position(pos.line + 1, pos.character);
+    newPosition = new vscode.Position(currentPosition.line + 1, currentPosition.character);
     char = '';
   }
   if (char === '↑') {
-    _pos = new vscode.Position(pos.line - 1, pos.character);
+    newPosition = new vscode.Position(currentPosition.line - 1, currentPosition.character);
     char = '';
   }
   if (char === '→') {
-    _pos = new vscode.Position(pos.line, pos.character + 1);
+    newPosition = new vscode.Position(currentPosition.line, currentPosition.character + 1);
     char = '';
   }
   if (char === '←') {
-    _pos = new vscode.Position(pos.line, pos.character - 1);
+    newPosition = new vscode.Position(currentPosition.line, currentPosition.character - 1);
     char = '';
   }
   if (char === '⇤') {
-    _pos = new vscode.Position(pos.line, 0);
+    newPosition = new vscode.Position(currentPosition.line, 0);
     char = '';
   }
   if (char === '⇥') {
-    _pos = editor.document.lineAt(pos.line).range.end;
+    newPosition = editor.document.lineAt(currentPosition.line).range.end;
     char = '';
   }
 
   editor.edit(editBuilder => {
     if (char !== '⌫') {
-      editBuilder.insert(_pos, char);
+      editBuilder.insert(newPosition, char);
     }
     else {
-      _pos = new vscode.Position(pos.line, pos.character - 1);
-      let selection = new vscode.Selection(_pos, pos);
+      newPosition = new vscode.Position(currentPosition.line, currentPosition.character - 1);
+      let selection = new vscode.Selection(newPosition, currentPosition);
       editBuilder.delete(selection);
       char = '';
     }
 
-    let newSelection = new vscode.Selection(_pos, _pos);
+    let newSelection = new vscode.Selection(newPosition, newPosition);
     if (char === "\n") {
-      newSelection = new vscode.Selection(pos, pos);
-      _pos = new vscode.Position(pos.line + 1, 0);
+      newSelection = new vscode.Selection(currentPosition, currentPosition);
+      newPosition = new vscode.Position(currentPosition.line + 1, 0);
       char = '';
     }
 
     editor.selection = newSelection;
   }).then(() => {
-    // TODO: Allow user specified delays here for base, and variation
-    const baseDelay = 20;
-    const variableDelay = 80;
-    let delay = baseDelay + variableDelay * Math.random();
-    if (Math.random() < 0.1) {delay += 250;}
-    const _p = new vscode.Position(_pos.line, char.length + _pos.character);
+    const config = vscode.workspace.getConfiguration('autoCoder');
+    const baseDelay = config.get('baseCharacterDelay', 20);
+    const variableDelay = config.get('baseCharacterDelay', 80);
+    const delay = baseDelay + variableDelay * Math.random();
+    const _p = new vscode.Position(newPosition.line, char.length + newPosition.character);
     // TODO: Rewrite this using async/await, no recursive setTimeouts
     setTimeout(() => {
       type(text.substring(1, text.length), _p);
