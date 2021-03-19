@@ -4,7 +4,7 @@
     "description": "Automatically write code from a script, record and replay tutorials or videos using automated live coding, and teach programming with scripted guides.",
     "version": "0.3.0",
     "publisher": "BradyDowling",
-    "icon": "images/icon.png",
+    "icon": "src/images/icon.png",
     "repository": {
         "type": "git",
         "url": "https://github.com/bradydowling/auto-coder.git"
