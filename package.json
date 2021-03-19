@@ -10,7 +10,7 @@
         "url": "https://github.com/bradydowling/auto-coder.git"
     },
     "engines": {
-        "vscode": "^1.27.0"
+        "vscode": "^1.54.0"
     },
     "categories": [
         "Other"
