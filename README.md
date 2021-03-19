@@ -114,7 +114,7 @@ Auto Coder uses VS Code's insert API to "type." In other words, it copies and pa
 
 ## Release Notes
 
-### 0.5.0
+### 0.6.0
 - Add preferences for typing speed
 
 ### 0.1.0
