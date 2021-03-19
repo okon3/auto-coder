@@ -15,7 +15,7 @@ In addition to typing code, Auto Coder can :
 
 Here is Auto Coder in action:
 
-![A simple Auto Coder script in action](https://raw.githubusercontent.com/eee-c/auto-type/master/images/basic_auto_type.gif)
+![A simple Auto Coder script in action](https://raw.githubusercontent.com/bradydowling/auto-coder/master/src/images/basic_auto_type.gif)
 
 To use Auto Coder, you type up the script you want to follow, one page at a time. The script pages are stored in the `.auto-type` directory in the root folder of your project. The script pages are ordered by filename.
 
@@ -114,7 +114,7 @@ Auto Coder uses VS Code's insert API to "type." In other words, it copies and pa
 
 ## Release Notes
 
-### 0.3.0
+### 0.5.0
 - Add preferences for typing speed
 
 ### 0.1.0
