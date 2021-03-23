@@ -3,12 +3,11 @@
 - https://github.com/jengjeng/aural-coding-vscode/blob/master/src/lib/player.ts
 */
 
-const cp = require('child_process');
+import * as fs from 'fs';
 const path = require('path');
 const player = require('play-sound')();
 
 const _isWindows = process.platform === 'win32';
-const _playerWindowsPath = path.join(__dirname, '..', 'audio', 'sounder.exe');
 
 export interface PlayerConfig {
     /**
@@ -24,21 +23,31 @@ const playerAdapter = (opts: PlayerConfig) => ({
     mplayer: ['-af', `volume=${opts.linuxVol}`],
 });
 
-export const play = (soundName: string, soundCategory: string = "hacker", config: PlayerConfig) : Promise<void> => {
-  return new Promise ((resolve, reject) => {
-    if (_isWindows) {
-      // no Windows support yet :/
-      resolve();
-      return;
-    }
-    const filePath = path.join(__dirname, "../../audio/", soundCategory, `${soundName}.mp3`);
-    player.play(filePath, playerAdapter(config), (err: any) => {
+const getRandomFile = (dirPath: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    fs.readdir(dirPath, (err, items) => {
       if (err) {
-        console.error("Error playing sound:", filePath, " - Description:", err);
-        return reject(err);
+        reject(err);
       }
-      resolve();
+
+      const fileIndex = Math.round(Math.random() * (items.length - 1));
+      resolve(items[fileIndex]);
     });
+  });
+};
+
+export const play = async (soundName: string, soundCategory: string = "hacker", config: PlayerConfig): Promise<void> => {
+  if (_isWindows) {
+    // no Windows support yet :/
+    return;
+  }
+  const fileDirectory = path.join(__dirname, "../../audio/", soundCategory, soundName);
+  const fileName = await getRandomFile(fileDirectory);
+  const filePath = path.join(fileDirectory, fileName);
+  player.play(filePath, playerAdapter(config), (err: any) => {
+    if (err) {
+      console.error("Error playing sound:", filePath, " - Description:", err);
+    }
   });
 };
 

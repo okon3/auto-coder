@@ -332,8 +332,8 @@ function getTypingInfo(text: string, currentPosition: vscode.Position, editor: v
 }
 
 const triggerKeySound = () => {
-  const config = vscode.workspace.getConfiguration('auto-coder');
-  const soundEffectSetting = config.get('soundEffects', 'hacker');
+  const config = vscode.workspace.getConfiguration('autoCoder');
+  const soundEffectSetting = config.get('soundEffects', 'keyboard');
   const playerConfig = {
       macVol: 10,
       winVol: 10,
