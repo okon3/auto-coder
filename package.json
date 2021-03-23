@@ -9,6 +9,19 @@
         "type": "git",
         "url": "https://github.com/bradydowling/auto-coder.git"
     },
+    "homepage": "https://github.com/bradydowling/auto-coder/README.md",
+    "keywords": [
+      "automation",
+      "tutorials",
+      "vscode",
+      "editor",
+      "automated",
+      "type",
+      "typing",
+      "keyboard",
+      "coder",
+      "coding"
+  ],
     "engines": {
         "vscode": "^1.54.0"
     },
