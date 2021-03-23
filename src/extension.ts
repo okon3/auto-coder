@@ -2,6 +2,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { play } from './player/player';
 
 let currentPageNum = 0;
 
@@ -232,7 +233,7 @@ function parseFrontMatter(text: string): FrontMatter {
   // Either parse the provided line or use 1, then 0-index it
   const line = (rawOptions.line ? parseInt(rawOptions.line, 10) : 1) - 1;
   const col = (rawOptions.col ? parseInt(rawOptions.col, 10) : 1) - 1;
-  
+
   // See https://code.visualstudio.com/api/references/vscode-api#TextEditorRevealType
   const align = rawOptions.align || 'middle';
   const newAlign = align === 'middle' ? 2 : 3;
@@ -245,127 +246,19 @@ function parseFrontMatter(text: string): FrontMatter {
   };
 }
 
-async function timedCharacterType(text: string, pos: vscode.Position, delay: number) {
+async function timedCharacterType(text: string, currentPosition: vscode.Position, delay: number) {
   const editor = vscode.window.activeTextEditor;
-  
+
   if (!editor || !text || text.length === 0) {return;}
 
-  let _pos = pos;
-  let char = text.substring(0, 1);
-  // TODO: Create function for typing a letter, call sound play in there
-  // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
-  /*
-  const triggerKey = () => {
-    const config = vscode.workspace.getConfiguration('auto-coder');
-    if (!config || !config.get('soundEffects')) {
-
-    }
-  }
-  */
-  if (char === '↓') {
-    _pos = new vscode.Position(pos.line + 1, pos.character);
-    char = '';
-  }
-  if (char === '↑') {
-    _pos = new vscode.Position(pos.line - 1, pos.character);
-    char = '';
-  }
-  if (char === '→') {
-    _pos = new vscode.Position(pos.line, pos.character + 1);
-    char = '';
-  }
-  if (char === '←') {
-    _pos = new vscode.Position(pos.line, pos.character - 1);
-    char = '';
-  }
-  if (char === '⇤') {
-    _pos = new vscode.Position(pos.line, 0);
-    char = '';
-  }
-  if (char === '⇥') {
-    _pos = editor.document.lineAt(pos.line).range.end;
-    char = '';
-  }
+  triggerKeySound();
+  let { newPosition, char } = getTypingInfo(text, currentPosition, editor);
 
   await editor.edit(editBuilder => {
-    if (char !== '⌫') {
-      editBuilder.insert(_pos, char);
-    }
-    else {
-      _pos = new vscode.Position(pos.line, pos.character - 1);
-      let selection = new vscode.Selection(_pos, pos);
-      editBuilder.delete(selection);
-      char = '';
-    }
-
-    let newSelection = new vscode.Selection(_pos, _pos);
-    if (char === "\n") {
-      newSelection = new vscode.Selection(pos, pos);
-      _pos = new vscode.Position(pos.line + 1, 0);
-      char = '';
-    }
-
-    editor.selection = newSelection;
-  });
-  // TODO: Allow user specified delays here for base, and variation
-  const baseDelay = 20;
-  const variableDelay = 80;
-  await pause(baseDelay + (variableDelay * Math.random()));
-  return { };
-}
-
-function pause(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function type(text: string, currentPosition: vscode.Position) {
-  const editor = vscode.window.activeTextEditor;
-  
-  if (!editor || !text || text.length === 0) {return;}
-
-  let newPosition = currentPosition;
-  let char = text.substring(0, 1);
-  // TODO: Create function for typing a letter, call sound play in there
-  // use this for reference https://github.com/jengjeng/aural-coding-vscode/blob/0b9a49881f8908aae1ccec689b2238b0aaf367a1/src/lib/player.ts
-  /*
-  const triggerKey = () => {
-    const config = vscode.workspace.getConfiguration('auto-coder');
-    if (!config || !config.get('soundEffects')) {
-
-    }
-  }
-  */
-  if (char === '↓') {
-    newPosition = new vscode.Position(currentPosition.line + 1, currentPosition.character);
-    char = '';
-  }
-  if (char === '↑') {
-    newPosition = new vscode.Position(currentPosition.line - 1, currentPosition.character);
-    char = '';
-  }
-  if (char === '→') {
-    newPosition = new vscode.Position(currentPosition.line, currentPosition.character + 1);
-    char = '';
-  }
-  if (char === '←') {
-    newPosition = new vscode.Position(currentPosition.line, currentPosition.character - 1);
-    char = '';
-  }
-  if (char === '⇤') {
-    newPosition = new vscode.Position(currentPosition.line, 0);
-    char = '';
-  }
-  if (char === '⇥') {
-    newPosition = editor.document.lineAt(currentPosition.line).range.end;
-    char = '';
-  }
-
-  editor.edit(editBuilder => {
     if (char !== '⌫') {
       editBuilder.insert(newPosition, char);
     }
     else {
-      newPosition = new vscode.Position(currentPosition.line, currentPosition.character - 1);
       let selection = new vscode.Selection(newPosition, currentPosition);
       editBuilder.delete(selection);
       char = '';
@@ -379,15 +272,109 @@ function type(text: string, currentPosition: vscode.Position) {
     }
 
     editor.selection = newSelection;
+  });
+  await pause(delay);
+  return { };
+}
+
+function pause(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getTypingInfo(text: string, currentPosition: vscode.Position, editor: vscode.TextEditor) {
+  const char = text.substring(0, 1);
+  if (char === '↓') {
+    return {
+      newPosition: new vscode.Position(currentPosition.line + 1, currentPosition.character),
+      char: '',
+    };
+  }
+  if (char === '↑') {
+    return {
+      newPosition: new vscode.Position(currentPosition.line - 1, currentPosition.character),
+      char: '',
+    };
+  }
+  if (char === '→') {
+    return {
+      newPosition: new vscode.Position(currentPosition.line, currentPosition.character + 1),
+      char: '',
+    };
+  }
+  if (char === '←') {
+    return {
+      newPosition: new vscode.Position(currentPosition.line, currentPosition.character - 1),
+      char: '',
+    };
+  }
+  if (char === '⇤') {
+    return {
+      newPosition: new vscode.Position(currentPosition.line, 0),
+      char: '',
+    };
+  }
+  if (char === '⇥') {
+    return {
+      newPosition: editor.document.lineAt(currentPosition.line).range.end,
+      char: '',
+    };
+  }
+  if (char === '⌫') {
+    return {
+      newPosition: new vscode.Position(currentPosition.line, currentPosition.character - 1),
+      char,
+    };
+  }
+  return {
+    newPosition: currentPosition,
+    char,
+  };
+}
+
+const triggerKeySound = () => {
+  const config = vscode.workspace.getConfiguration('auto-coder');
+  const soundEffectSetting = config.get('soundEffects', 'hacker');
+  play('key', soundEffectSetting);
+};
+
+const getCharacterTypeDelay = () => {
+  const config = vscode.workspace.getConfiguration('autoCoder');
+  const baseDelay = config.get('baseCharacterDelay', 20);
+  const variableDelay = config.get('baseCharacterDelay', 80);
+  return baseDelay + variableDelay * Math.random();
+};
+
+function type(textRemaining: string, currentPosition: vscode.Position) {
+  const editor = vscode.window.activeTextEditor;
+
+  if (!editor || !textRemaining || textRemaining.length === 0) {return;}
+
+  triggerKeySound();
+  let { newPosition, char } = getTypingInfo(textRemaining, currentPosition, editor);
+
+  editor.edit(editBuilder => {
+    if (char === '⌫') {
+      let selection = new vscode.Selection(newPosition, currentPosition);
+      editBuilder.delete(selection);
+      char = '';
+    }
+    else {
+      editBuilder.insert(newPosition, char);
+    }
+
+    let newSelection = new vscode.Selection(newPosition, newPosition);
+    if (char === "\n") {
+      newSelection = new vscode.Selection(currentPosition, currentPosition);
+      newPosition = new vscode.Position(currentPosition.line + 1, 0);
+      char = '';
+    }
+
+    editor.selection = newSelection;
   }).then(() => {
-    const config = vscode.workspace.getConfiguration('autoCoder');
-    const baseDelay = config.get('baseCharacterDelay', 20);
-    const variableDelay = config.get('baseCharacterDelay', 80);
-    const delay = baseDelay + variableDelay * Math.random();
+    const delay = getCharacterTypeDelay();
     const _p = new vscode.Position(newPosition.line, char.length + newPosition.character);
-    // TODO: Rewrite this using async/await, no recursive setTimeouts
     setTimeout(() => {
-      type(text.substring(1, text.length), _p);
+      type(textRemaining.substring(1, textRemaining.length), _p);
     }, delay);
   });
 }
