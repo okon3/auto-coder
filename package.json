@@ -11,17 +11,17 @@
     },
     "homepage": "https://github.com/bradydowling/auto-coder/README.md",
     "keywords": [
-      "automation",
-      "tutorials",
-      "vscode",
-      "editor",
-      "automated",
-      "type",
-      "typing",
-      "keyboard",
-      "coder",
-      "coding"
-  ],
+        "automation",
+        "tutorials",
+        "vscode",
+        "editor",
+        "automated",
+        "type",
+        "typing",
+        "keyboard",
+        "coder",
+        "coding"
+    ],
     "engines": {
         "vscode": "^1.54.0"
     },
@@ -94,6 +94,6 @@
         "vscode-test": "^1.5.1"
     },
     "dependencies": {
-        "sound-play": "^1.1.0"
+        "play-sound": "^1.1.3"
     }
 }
