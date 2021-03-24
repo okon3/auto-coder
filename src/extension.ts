@@ -332,12 +332,21 @@ function getTypingInfo(text: string, currentPosition: vscode.Position, editor: v
 }
 
 const triggerKeySound = () => {
+  const soundEffectSettings = [
+    'none',
+    'hacker',
+    'keyboard',
+    'typewriter'
+  ];
   const config = vscode.workspace.getConfiguration('autoCoder');
-  const soundEffectSetting = config.get('soundEffects', 'keyboard');
+  const soundEffectSetting = config.get('soundEffects', 'none');
+  if (soundEffectSettings.indexOf(soundEffectSetting) < 1) {
+    return;
+  }
   const playerConfig = {
-      macVol: 10,
-      winVol: 10,
-      linuxVol: 10,
+      macVol: 5,
+      winVol: 5,
+      linuxVol: 5,
   };
   play('key', soundEffectSetting, playerConfig);
 };
