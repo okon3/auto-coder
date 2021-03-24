@@ -14,13 +14,13 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "auto-type" is now active!');
 
-    let disposable = vscode.commands.registerCommand('extension.resetCodeScript', () => {
+    const resetCodeScriptCommand = vscode.commands.registerCommand('extension.resetCodeScript', () => {
       currentPageNum = 0;
     });
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(resetCodeScriptCommand);
 
-    disposable = vscode.commands.registerCommand('extension.completeCodeScript', () => {
+    const completeCodeScriptCommand = vscode.commands.registerCommand('extension.completeCodeScript', () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
         return;
@@ -84,12 +84,12 @@ export function activate(context: vscode.ExtensionContext) {
       });
     });
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(completeCodeScriptCommand);
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    disposable = vscode.commands.registerCommand('extension.playCodeScript', () => {
+    const playCodeScriptCommand = vscode.commands.registerCommand('extension.playCodeScript', () => {
       // The code you place here will be executed every time your command is executed
 
       let editor = vscode.window.activeTextEditor;
@@ -154,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
       });
     });
 
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(playCodeScriptCommand);
 }
 
 interface ScriptPage extends FrontMatter {
@@ -336,7 +336,6 @@ const triggerKeySound = () => {
     'none',
     'macbook',
     'keyboard',
-    'typewriter',
     'hacker',
   ];
   const config = vscode.workspace.getConfiguration('autoCoder');
