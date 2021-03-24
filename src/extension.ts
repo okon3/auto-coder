@@ -334,9 +334,10 @@ function getTypingInfo(text: string, currentPosition: vscode.Position, editor: v
 const triggerKeySound = () => {
   const soundEffectSettings = [
     'none',
-    'hacker',
+    'macbook',
     'keyboard',
-    'typewriter'
+    'typewriter',
+    'hacker',
   ];
   const config = vscode.workspace.getConfiguration('autoCoder');
   const soundEffectSetting = config.get('soundEffects', 'none');
@@ -353,8 +354,8 @@ const triggerKeySound = () => {
 
 const getCharacterTypeDelay = () => {
   const config = vscode.workspace.getConfiguration('autoCoder');
-  const baseDelay = config.get('baseCharacterDelay', 20);
-  const variableDelay = config.get('baseCharacterDelay', 80);
+  const baseDelay = config.get('characterDelayBase', 20);
+  const variableDelay = config.get('characterDelayVariation', 80);
   return baseDelay + variableDelay * Math.random();
 };
 

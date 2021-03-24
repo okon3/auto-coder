@@ -54,17 +54,18 @@
                     "default": "none",
                     "enum": [
                         "none",
+                        "macbook",
                         "keyboard",
                         "typewriter",
                         "hacker"
                     ]
                 },
-                "autoCoder.baseCharacterDelay": {
+                "autoCoder.characterDelayBase": {
                     "type": "number",
                     "default": 20,
                     "description": "Minimum milliseconds to delay between each character that's typed"
                 },
-                "autoCoder.variableCharacterDelay": {
+                "autoCoder.characterDelayVariation": {
                     "type": "number",
                     "default": 80,
                     "description": "In addition to the base delay, there can be a random delay (in milliseconds) between 0 and the number set here. Set this to 0 to have the same delay for each character typed"
