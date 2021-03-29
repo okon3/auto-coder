@@ -283,6 +283,7 @@ function pause(ms: number) {
 
 function getTypingInfo(text: string, currentPosition: vscode.Position, editor: vscode.TextEditor) {
   const char = text.substring(0, 1);
+  // Moving cursor
   if (char === '↓') {
     return {
       newPosition: new vscode.Position(currentPosition.line + 1, currentPosition.character),
@@ -320,11 +321,51 @@ function getTypingInfo(text: string, currentPosition: vscode.Position, editor: v
     };
   }
   if (char === '⌫') {
+    // Delete char left
+    const newCol = currentPosition.character > 0 ? currentPosition.character - 1 : 0;
+    return {
+      newPosition: new vscode.Position(currentPosition.line, newCol),
+      char,
+    };
+  }
+  if (char === '⌦') {
+    // Delete char right
+    const endChar = editor.document.lineAt(currentPosition.line).range.end.character;
+    const newCol = currentPosition.character < endChar ? currentPosition.character + 1 : currentPosition.character;
+    return {
+      newPosition: new vscode.Position(currentPosition.line, newCol),
+      char,
+    };
+  }
+  if (char === '↚') {
+    // Delete all left
+    return {
+      newPosition: new vscode.Position(currentPosition.line, 0),
+      char,
+    };
+  }
+  if (char === '↛') {
+    // Delete all right
+    return {
+      newPosition: editor.document.lineAt(currentPosition.line).range.end,
+      char,
+    };
+  }
+  if (char === '⌧') {
+    // Remove the line completely
     return {
       newPosition: new vscode.Position(currentPosition.line, currentPosition.character - 1),
       char,
     };
   }
+  if (char === '¬') {
+    // No op (pause)
+    return {
+      newPosition: new vscode.Position(currentPosition.line, currentPosition.character),
+      char: '',
+    };
+  }
+  // Normal text insertion
   return {
     newPosition: currentPosition,
     char,
@@ -366,10 +407,22 @@ function type(textRemaining: string, currentPosition: vscode.Position) {
   triggerKeySound();
   let { newPosition, char } = getTypingInfo(textRemaining, currentPosition, editor);
 
+  const deletionCharacters = ['⌫', '⌦', '↚', '↛'];
   editor.edit(editBuilder => {
-    if (char === '⌫') {
+    if (deletionCharacters.indexOf(char) > -1) {
       let selection = new vscode.Selection(newPosition, currentPosition);
       editBuilder.delete(selection);
+      char = '';
+    }
+    else if (char === '⌧') {
+      const currentLineStart = editor.document.lineAt(currentPosition.line).range.start;
+      const currentLineEnd = editor.document.lineAt(currentPosition.line).range.end;
+      const nextLineStart = editor.document.lineAt(currentPosition.line + 1).range.start;
+      const isLastLine = false; // TODO: This fails on the last line of a file
+      const endSelection = isLastLine ? currentLineEnd : nextLineStart;
+      let selection = new vscode.Selection(endSelection, currentLineStart);
+      editBuilder.delete(selection);
+      // TODO: Set newPosition
       char = '';
     }
     else {
