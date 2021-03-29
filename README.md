@@ -130,10 +130,11 @@ Initial beta release. Minimal viable features:
 - Delete
 
 ## Similar Extensions/Inspiration
-- [auto-type](https://github.com/eee-c/auto-type) (this is a direct fork of auto-type)
-- [Typewriter for VSCode (Human like typing for GIFs and live demos)](https://github.com/dan-silver/typewriter-for-vscode)
-- [Codio](https://github.com/wix-incubator/codio)
-- [Hacker Typer](https://github.com/nodename/vscode-hacker-typer)
-- [Typewriter Noises](https://github.com/timmyreilly/TypewriterNoises-VSCode)
-- [Hacker Sounds](https://github.com/mattogodoy/hacker-sounds)
+- [auto-type](https://github.com/eee-c/auto-type) - the extension from which Auto Coder was originally forked
+- [Typewriter for VSCode (Human like typing for GIFs and live demos)](https://github.com/dan-silver/typewriter-for-vscode) - highlight a block of text then run `Typewriter: Set From Selection` to allow automatic typing of that text on command (allows pause/play of typing)
+- [Codio](https://github.com/wix-incubator/codio) - start recording to capture audio and file changes, which can then be played back (delays, mistakes, and all)
+- [Hacker Typer](https://github.com/nodename/vscode-hacker-typer) - record macros that can be played back as live coding
+- [CodeTour](https://github.com/microsoft/codetour) - allows for recording of audio and opening files, which can then be played back later for a codebase walkthrough or live presentation
+- [Typewriter Noises](https://github.com/timmyreilly/TypewriterNoises-VSCode) - adds typewriter noises when user types
+- [Hacker Sounds](https://github.com/mattogodoy/hacker-sounds) - adds high pitched bleep noises when user types
 - [Aurual Coding](https://github.com/jengjeng/aural-coding-vscode)
