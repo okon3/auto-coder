@@ -132,6 +132,7 @@ Initial beta release. Minimal viable features:
 ## Similar Extensions/Inspiration
 - [auto-type](https://github.com/eee-c/auto-type) - the extension from which Auto Coder was originally forked
 - [Typewriter for VSCode (Human like typing for GIFs and live demos)](https://github.com/dan-silver/typewriter-for-vscode) - highlight a block of text then run `Typewriter: Set From Selection` to allow automatic typing of that text on command (allows pause/play of typing)
+- [Typeit](https://marketplace.visualstudio.com/items?itemName=uppernauts.typeit) - run a command to automatically type the text in the current file (allows for an ASCII countdown before starting and several typing delay preferences)
 - [Codio](https://github.com/wix-incubator/codio) - start recording to capture audio and file changes, which can then be played back (delays, mistakes, and all)
 - [Hacker Typer](https://github.com/nodename/vscode-hacker-typer) - record macros that can be played back as live coding
 - [CodeTour](https://github.com/microsoft/codetour) - allows for recording of audio and opening files, which can then be played back later for a codebase walkthrough or live presentation
