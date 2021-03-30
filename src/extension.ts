@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { play } from './player/player';
+import { isatty } from 'node:tty';
 
 let currentPageNum = 0;
 
@@ -143,7 +144,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showTextDocument(changeDoc).then(() => {
             const range = changeDoc.lineAt(scriptPage.line).range;
             if (vscode.window.activeTextEditor) {
-              vscode.window.activeTextEditor.selection =  new vscode.Selection(range.start, range.end);
+              vscode.window.activeTextEditor.selection = new vscode.Selection(range.start, range.end);
               vscode.window.activeTextEditor.revealRange(range, scriptPage.align);
             }
 
@@ -427,6 +428,20 @@ function type(textRemaining: string, currentPosition: vscode.Position) {
     }
     else {
       editBuilder.insert(newPosition, char);
+      // TODO: Add horizontal limit
+      // TODO: Fix issue on newline (doesn't focus until character is typed)
+      const isAtVerticalLimit = newPosition.line > editor.visibleRanges[0].end.line - 1;
+      if (isAtVerticalLimit) {
+        const range = {
+          start: newPosition,
+          end: newPosition,
+        } as vscode.Range;
+        editor.revealRange(range, 0);
+        // vscode.commands.executeCommand("revealLine", { // This could also work, it's used in https://github.com/kaiwood/vscode-center-editor-window/blob/master/src/extension.ts#L60
+        //   lineNumber: newPosition.line,
+        //   at: "bottom"
+        // });
+      }
     }
 
     let newSelection = new vscode.Selection(newPosition, newPosition);
