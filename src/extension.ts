@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { play } from './player/player';
-import { isatty } from 'node:tty';
 
 let currentPageNum = 0;
 
@@ -15,6 +14,11 @@ export function activate(context: vscode.ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "auto-type" is now active!');
 
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    statusBarItem.text = "$(play) Run AutoCoder Script";
+    statusBarItem.command = "extension.playCodeScript";
+    statusBarItem.show();
+
     const resetCodeScriptCommand = vscode.commands.registerCommand('extension.resetCodeScript', () => {
       currentPageNum = 0;
     });
@@ -23,17 +27,13 @@ export function activate(context: vscode.ExtensionContext) {
 
     const completeCodeScriptCommand = vscode.commands.registerCommand('extension.completeCodeScript', () => {
       const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        return;
-      }
-
       const ws = vscode.workspace;
 
-      if (!vscode.workspace.workspaceFolders) {
+      if (!editor || !ws.workspaceFolders) {
         return;
       }
 
-      const rootDir = vscode.workspace.workspaceFolders[0].uri.fsPath;
+      const rootDir = ws.workspaceFolders[0].uri.fsPath;
       const scriptDirName = '.auto-type';
       const scriptDir = path.join(rootDir, scriptDirName);
 
@@ -80,7 +80,13 @@ export function activate(context: vscode.ExtensionContext) {
 
             const pos = new vscode.Position(scriptPage.line, scriptPage.col);
             const changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
-            type(changeText, pos);
+            const charInput = changeText.split("");
+            const delay = getCharacterTypeDelay();
+            for (let i = 0; i < charInput.length; i++) {
+              const currentCharacter = charInput[i];
+              // TODO: Need to get new position
+              timedCharacterType(currentCharacter, pos, delay);
+            }
           });
       });
     });
@@ -91,7 +97,6 @@ export function activate(context: vscode.ExtensionContext) {
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
     const playCodeScriptCommand = vscode.commands.registerCommand('extension.playCodeScript', () => {
-      // The code you place here will be executed every time your command is executed
 
       let editor = vscode.window.activeTextEditor;
       if (!editor) {return;}
@@ -247,13 +252,14 @@ function parseFrontMatter(text: string): FrontMatter {
   };
 }
 
-async function timedCharacterType(text: string, currentPosition: vscode.Position, delay: number) {
+async function timedCharacterType(charInput: string, currentPosition: vscode.Position, delay: number) {
   const editor = vscode.window.activeTextEditor;
 
-  if (!editor || !text || text.length === 0) {return;}
+  if (!editor || !charInput || charInput.length === 0) {return;}
 
   triggerKeySound();
-  let { newPosition, char } = getTypingInfo(text, currentPosition, editor);
+  let char = getInsertionCharacter(charInput);
+  let newPosition = getNewPosition(charInput, currentPosition, editor);
 
   await editor.edit(editBuilder => {
     if (char !== '⌫') {
@@ -275,102 +281,11 @@ async function timedCharacterType(text: string, currentPosition: vscode.Position
     editor.selection = newSelection;
   });
   await pause(delay);
-  return { };
+  return;
 }
 
 function pause(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function getTypingInfo(text: string, currentPosition: vscode.Position, editor: vscode.TextEditor) {
-  const char = text.substring(0, 1);
-  // Moving cursor
-  if (char === '↓') {
-    return {
-      newPosition: new vscode.Position(currentPosition.line + 1, currentPosition.character),
-      char: '',
-    };
-  }
-  if (char === '↑') {
-    return {
-      newPosition: new vscode.Position(currentPosition.line - 1, currentPosition.character),
-      char: '',
-    };
-  }
-  if (char === '→') {
-    return {
-      newPosition: new vscode.Position(currentPosition.line, currentPosition.character + 1),
-      char: '',
-    };
-  }
-  if (char === '←') {
-    return {
-      newPosition: new vscode.Position(currentPosition.line, currentPosition.character - 1),
-      char: '',
-    };
-  }
-  if (char === '⇤') {
-    return {
-      newPosition: new vscode.Position(currentPosition.line, 0),
-      char: '',
-    };
-  }
-  if (char === '⇥') {
-    return {
-      newPosition: editor.document.lineAt(currentPosition.line).range.end,
-      char: '',
-    };
-  }
-  if (char === '⌫') {
-    // Delete char left
-    const newCol = currentPosition.character > 0 ? currentPosition.character - 1 : 0;
-    return {
-      newPosition: new vscode.Position(currentPosition.line, newCol),
-      char,
-    };
-  }
-  if (char === '⌦') {
-    // Delete char right
-    const endChar = editor.document.lineAt(currentPosition.line).range.end.character;
-    const newCol = currentPosition.character < endChar ? currentPosition.character + 1 : currentPosition.character;
-    return {
-      newPosition: new vscode.Position(currentPosition.line, newCol),
-      char,
-    };
-  }
-  if (char === '↚') {
-    // Delete all left
-    return {
-      newPosition: new vscode.Position(currentPosition.line, 0),
-      char,
-    };
-  }
-  if (char === '↛') {
-    // Delete all right
-    return {
-      newPosition: editor.document.lineAt(currentPosition.line).range.end,
-      char,
-    };
-  }
-  if (char === '⌧') {
-    // Remove the line completely
-    return {
-      newPosition: new vscode.Position(currentPosition.line, currentPosition.character - 1),
-      char,
-    };
-  }
-  if (char === '¬') {
-    // No op (pause)
-    return {
-      newPosition: new vscode.Position(currentPosition.line, currentPosition.character),
-      char: '',
-    };
-  }
-  // Normal text insertion
-  return {
-    newPosition: currentPosition,
-    char,
-  };
 }
 
 const triggerKeySound = () => {
@@ -400,15 +315,93 @@ const getCharacterTypeDelay = () => {
   return baseDelay + variableDelay * Math.random();
 };
 
+const deletionCharacters = ['⌫', '⌦', '↚', '↛'];
+const moveCursorCharacters = [
+  '↓',
+  '↑',
+  '→',
+  '←',
+  '⇤',
+  '⇥',
+];
+const newLineCharacter = '\n';
+
+const getInsertionCharacter = (charInput: string) => {
+  if (deletionCharacters.indexOf(charInput) > -1) {
+    return charInput;
+  }
+  if (charInput === '⌧') {
+    return '';
+  }
+  if (moveCursorCharacters.indexOf(charInput) > -1) {
+    return '';
+  }
+  if (charInput === '¬') {
+    return '';
+  }
+  if (charInput === newLineCharacter) {
+    return charInput;
+  }
+  return charInput;
+};
+
+const getNewPosition = (inputChar: string, currentPosition: vscode.Position, editor: vscode.TextEditor) => {
+  // Moving cursor
+  if (inputChar === '↓') {
+    return new vscode.Position(currentPosition.line + 1, currentPosition.character);
+  }
+  if (inputChar === '↑') {
+    return new vscode.Position(currentPosition.line - 1, currentPosition.character);
+  }
+  if (inputChar === '→') {
+    return new vscode.Position(currentPosition.line, currentPosition.character + 1);
+  }
+  if (inputChar === '←') {
+    return new vscode.Position(currentPosition.line, currentPosition.character - 1);
+  }
+  if (inputChar === '⇤') {
+    return new vscode.Position(currentPosition.line, 0);
+  }
+  if (inputChar === '⇥') {
+    return editor.document.lineAt(currentPosition.line).range.end;
+  }
+  if (inputChar === '⌫') {
+    // Delete char left
+    const newCol = currentPosition.character > 0 ? currentPosition.character - 1 : 0;
+    return new vscode.Position(currentPosition.line, newCol);
+  }
+  if (inputChar === '⌦') {
+    // Delete char right
+    const endChar = editor.document.lineAt(currentPosition.line).range.end.character;
+    const newCol = currentPosition.character < endChar ? currentPosition.character + 1 : currentPosition.character;
+    return new vscode.Position(currentPosition.line, newCol);
+  }
+  if (inputChar === '↚') {
+    // Delete all left
+    return new vscode.Position(currentPosition.line, 0);
+  }
+  if (inputChar === '↛') {
+    // Delete all right
+    return editor.document.lineAt(currentPosition.line).range.end;
+  }
+  if (inputChar === '⌧') {
+    // Remove the line completely
+    return new vscode.Position(currentPosition.line, currentPosition.character - 1);
+  }
+  // Normal text insertion
+  return currentPosition;
+};
+
 function type(textRemaining: string, currentPosition: vscode.Position) {
   const editor = vscode.window.activeTextEditor;
 
   if (!editor || !textRemaining || textRemaining.length === 0) {return;}
 
   triggerKeySound();
-  let { newPosition, char } = getTypingInfo(textRemaining, currentPosition, editor);
+  const charInput = textRemaining.substring(0, 1);
+  let char = getInsertionCharacter(charInput);
+  let newPosition = getNewPosition(charInput, currentPosition, editor);
 
-  const deletionCharacters = ['⌫', '⌦', '↚', '↛'];
   editor.edit(editBuilder => {
     if (deletionCharacters.indexOf(char) > -1) {
       let selection = new vscode.Selection(newPosition, currentPosition);
