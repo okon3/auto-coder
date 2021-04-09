@@ -400,7 +400,7 @@ function type(textRemaining: string, currentPosition: vscode.Position) {
   triggerKeySound();
   const charInput = textRemaining.substring(0, 1);
   let char = getInsertionCharacter(charInput);
-  let newPosition = getNewPosition(charInput, currentPosition, editor);
+  const newPosition = getNewPosition(charInput, currentPosition, editor);
 
   editor.edit(editBuilder => {
     if (deletionCharacters.indexOf(char) > -1) {
@@ -414,7 +414,7 @@ function type(textRemaining: string, currentPosition: vscode.Position) {
       const nextLineStart = editor.document.lineAt(currentPosition.line + 1).range.start;
       const isLastLine = false; // TODO: This fails on the last line of a file
       const endSelection = isLastLine ? currentLineEnd : nextLineStart;
-      let selection = new vscode.Selection(endSelection, currentLineStart);
+      const selection = new vscode.Selection(endSelection, currentLineStart);
       editBuilder.delete(selection);
       // TODO: Set newPosition
       char = '';
@@ -437,22 +437,31 @@ function type(textRemaining: string, currentPosition: vscode.Position) {
       }
     }
 
-    let newSelection = new vscode.Selection(newPosition, newPosition);
-    if (char === "\n") {
-      newSelection = new vscode.Selection(currentPosition, currentPosition);
-      newPosition = new vscode.Position(currentPosition.line + 1, 0);
-      char = '';
-    }
-
-    editor.selection = newSelection;
+    editor.selection = getNewSelection(char, newPosition, currentPosition);
   }).then(() => {
     const delay = getCharacterTypeDelay();
-    const _p = new vscode.Position(newPosition.line, char.length + newPosition.character);
+    const nextPosition = getNextPosition(char, newPosition, currentPosition);
     setTimeout(() => {
-      type(textRemaining.substring(1, textRemaining.length), _p);
+      type(textRemaining.substring(1, textRemaining.length), nextPosition);
     }, delay);
   });
 }
+
+// Gets the position of the cursor for the next character that should be typed
+const getNextPosition = (previousChar: string, newPosition: vscode.Position, currentPosition: vscode.Position) => {
+  if (previousChar === "\n") {
+    return new vscode.Position(currentPosition.line + 1, 0);
+  }
+  return new vscode.Position(newPosition.line, newPosition.character + 1);
+};
+
+// Gets the new selection for the editor, I don't fully understand this one TBH
+const getNewSelection = (char: string, newPosition: vscode.Position, currentPosition: vscode.Position) => {
+  if (char === "\n") {
+    return new vscode.Selection(currentPosition, currentPosition);
+  }
+  return new vscode.Selection(newPosition, newPosition);
+};
 
 // this method is called when your extension is deactivated
 export function deactivate() {
