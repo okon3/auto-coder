@@ -6,6 +6,37 @@ import { play } from './player/player';
 
 let currentPageNum = 0;
 
+const typeOutCoderScript = async (changeDoc: vscode.TextDocument, scriptPage: ScriptPage) => {
+  const range = changeDoc.lineAt(scriptPage.line).range;
+  if (vscode.window.activeTextEditor) {
+    vscode.window.activeTextEditor.selection = new vscode.Selection(range.start, range.end);
+    vscode.window.activeTextEditor.revealRange(range, scriptPage.align);
+  }
+
+  if (!vscode.window.activeTextEditor) {
+    return;
+  }
+
+  let cursorPosition = new vscode.Position(scriptPage.line, scriptPage.col);
+  const changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
+  const inputCharacters = changeText.split("");
+
+  // TODO: Look at where these should come from and be set
+  let char = getInsertionCharacter(inputCharacters[0]);
+  let newPosition = getNewPosition(inputCharacters[0], cursorPosition, vscode.window.activeTextEditor);
+  // TODO: Look at where these should come from and be set
+
+  const delay = getCharacterTypeDelay();
+  for (let i = 0; i < inputCharacters.length; i++) {
+    const currentCharacter = inputCharacters[i];
+    timedCharacterType(currentCharacter, cursorPosition, delay);
+
+    // TODO: Are the right params being passed here?
+    cursorPosition = getNextPosition(char, newPosition, cursorPosition);
+    await pause(delay);
+  }
+};
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -72,22 +103,8 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         vscode.window.showTextDocument(changeDoc).then(() => {
-            const range = changeDoc.lineAt(scriptPage.line).range;
-            if (vscode.window.activeTextEditor) {
-              vscode.window.activeTextEditor.selection = new vscode.Selection(range.start, range.end);
-              vscode.window.activeTextEditor.revealRange(range, scriptPage.align);
-            }
-
-            const pos = new vscode.Position(scriptPage.line, scriptPage.col);
-            const changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
-            const charInput = changeText.split("");
-            const delay = getCharacterTypeDelay();
-            for (let i = 0; i < charInput.length; i++) {
-              const currentCharacter = charInput[i];
-              // TODO: Need to get new position
-              timedCharacterType(currentCharacter, pos, delay);
-            }
-          });
+          typeOutCoderScript(changeDoc, scriptPage);
+        });
       });
     });
 
@@ -262,26 +279,35 @@ async function timedCharacterType(charInput: string, currentPosition: vscode.Pos
   let newPosition = getNewPosition(charInput, currentPosition, editor);
 
   await editor.edit(editBuilder => {
-    if (char !== '⌫') {
-      editBuilder.insert(newPosition, char);
-    }
-    else {
+    if (deletionCharacters.indexOf(char) > -1) {
       let selection = new vscode.Selection(newPosition, currentPosition);
       editBuilder.delete(selection);
       char = '';
     }
-
-    let newSelection = new vscode.Selection(newPosition, newPosition);
-    if (char === "\n") {
-      newSelection = new vscode.Selection(currentPosition, currentPosition);
-      newPosition = new vscode.Position(currentPosition.line + 1, 0);
+    else if (char === '⌧') {
+      const currentLineStart = editor.document.lineAt(currentPosition.line).range.start;
+      const currentLineEnd = editor.document.lineAt(currentPosition.line).range.end;
+      const nextLineStart = editor.document.lineAt(currentPosition.line + 1).range.start;
+      const isLastLine = false; // TODO: This fails on the last line of a file
+      const endSelection = isLastLine ? currentLineEnd : nextLineStart;
+      const selection = new vscode.Selection(endSelection, currentLineStart);
+      editBuilder.delete(selection);
       char = '';
     }
+    else {
+      editBuilder.insert(newPosition, char);
+      const isAtVerticalLimit = newPosition.line > editor.visibleRanges[0].end.line - 1;
+      if (isAtVerticalLimit) {
+        const range = {
+          start: newPosition,
+          end: newPosition,
+        } as vscode.Range;
+        editor.revealRange(range, 0);
+      }
+    }
 
-    editor.selection = newSelection;
+    editor.selection = getNewSelection(char, newPosition, currentPosition);
   });
-  await pause(delay);
-  return;
 }
 
 function pause(ms: number) {
