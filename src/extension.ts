@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { play } from './player/player';
 
-let currentPageNum = 0;
+let currentScriptNum = 0;
 
 const typeOutCoderScript = async (changeDoc: vscode.TextDocument, scriptPage: ScriptPage) => {
   const range = changeDoc.lineAt(scriptPage.line).range;
@@ -21,17 +21,13 @@ const typeOutCoderScript = async (changeDoc: vscode.TextDocument, scriptPage: Sc
   const changeText = typeof(scriptPage.content) === 'string' ? scriptPage.content : scriptPage.content.join('');
   const inputCharacters = changeText.split("");
 
-  // TODO: Look at where these should come from and be set
-  let char = getInsertionCharacter(inputCharacters[0]);
-  let newPosition = getNewPosition(inputCharacters[0], cursorPosition, vscode.window.activeTextEditor);
-  // TODO: Look at where these should come from and be set
-
   const delay = getCharacterTypeDelay();
   for (let i = 0; i < inputCharacters.length; i++) {
     const currentCharacter = inputCharacters[i];
+    const char = getInsertionCharacter(currentCharacter);
     timedCharacterType(currentCharacter, cursorPosition, delay);
 
-    // TODO: Are the right params being passed here?
+    const newPosition = getNewPosition(currentCharacter, cursorPosition, vscode.window.activeTextEditor);
     cursorPosition = getNextPosition(char, newPosition, cursorPosition);
     await pause(delay);
   }
@@ -43,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "auto-type" is now active!');
+    console.log('Congratulations, your extension "auto-coder" is now active!');
 
     const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     statusBarItem.text = "$(play) Run AutoCoder Script";
@@ -51,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
     statusBarItem.show();
 
     const resetCodeScriptCommand = vscode.commands.registerCommand('extension.resetCodeScript', () => {
-      currentPageNum = 0;
+      currentScriptNum = 0;
     });
 
     context.subscriptions.push(resetCodeScriptCommand);
@@ -68,24 +64,24 @@ export function activate(context: vscode.ExtensionContext) {
       const scriptDirName = '.auto-type';
       const scriptDir = path.join(rootDir, scriptDirName);
 
-      let scriptPages;
+      let scriptsData;
       try {
-        scriptPages = loadScript(scriptDir);
+        scriptsData = loadCoderScripts(scriptDir);
       }
       catch (e) {
         vscode.window.showWarningMessage(e);
         return;
       }
 
-      if (currentPageNum >= scriptPages.length) {
+      if (currentScriptNum >= scriptsData.length) {
         vscode.window.showInformationMessage('No more script pages.');
         return;
       }
 
-      const scriptPage = scriptPages[currentPageNum];
-      currentPageNum += 1;
+      const scriptPage = scriptsData[currentScriptNum];
+      currentScriptNum += 1;
 
-      const files = scriptPages.map(scriptPage => scriptPage.file );
+      const files = scriptsData.map(scriptPage => scriptPage.file );
 
       const docPromises = files.map(file => {
         const fqfn = (file.indexOf('/') === 0) ? file : path.join(rootDir, file);
@@ -96,14 +92,14 @@ export function activate(context: vscode.ExtensionContext) {
 
       Promise.all(docPromises).then(() => {
         const docs = ws.textDocuments;
-        const changeDoc = docs.find(doc => doc.fileName.indexOf(scriptPage.file) > -1);
+        const fileToChange = docs.find(doc => doc.fileName.indexOf(scriptPage.file) > -1);
 
-        if (!changeDoc) {
+        if (!fileToChange) {
           return;
         }
 
-        vscode.window.showTextDocument(changeDoc).then(() => {
-          typeOutCoderScript(changeDoc, scriptPage);
+        vscode.window.showTextDocument(fileToChange).then(() => {
+          typeOutCoderScript(fileToChange, scriptPage);
         });
       });
     });
@@ -130,20 +126,20 @@ export function activate(context: vscode.ExtensionContext) {
 
       let scriptPages;
       try {
-        scriptPages = loadScript(scriptDir);
+        scriptPages = loadCoderScripts(scriptDir);
       }
       catch (e) {
         vscode.window.showWarningMessage(e);
         return;
       }
 
-      if (currentPageNum >= scriptPages.length) {
+      if (currentScriptNum >= scriptPages.length) {
         vscode.window.showInformationMessage('No more script pages.');
         return;
       }
 
-      let scriptPage = scriptPages[currentPageNum];
-      currentPageNum += 1;
+      let scriptPage = scriptPages[currentScriptNum];
+      currentScriptNum += 1;
 
       let files = scriptPages.map(scriptPage => scriptPage.file );
 
@@ -186,7 +182,7 @@ interface ScriptPage extends FrontMatter {
   content: string | string[];
 }
 
-function loadScript(scriptDir: string): ScriptPage[] {
+function loadCoderScripts(scriptDir: string): ScriptPage[] {
   if (!fs.existsSync(scriptDir)) {
     vscode.window.showWarningMessage(`The script directory ${scriptDir} does not exist. Nothing for auto-type to do.`);
     return [];

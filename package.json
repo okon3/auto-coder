@@ -43,6 +43,10 @@
             {
                 "command": "extension.resetCodeScript",
                 "title": "Restart Code Script"
+            },
+            {
+                "command": "extension.completeCodeScript",
+                "title": "Complete Code Script"
             }
         ],
         "configuration": {
