@@ -1,104 +1,104 @@
 {
-    "name": "auto-coder",
-    "displayName": "Auto Coder",
-    "description": "Automatically write code from a script, record and replay tutorials or videos using automated live coding, and teach programming with scripted guides.",
-    "version": "0.8.0",
-    "publisher": "BradyDowling",
-    "icon": "icon.png",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/bradydowling/auto-coder.git"
-    },
-    "homepage": "https://github.com/bradydowling/auto-coder/README.md",
-    "keywords": [
-        "automation",
-        "tutorials",
-        "vscode",
-        "editor",
-        "automated",
-        "type",
-        "typing",
-        "keyboard",
-        "coder",
-        "coding"
+  "name": "auto-coder",
+  "displayName": "Auto Coder",
+  "description": "Automatically write code from a script, record and replay tutorials or videos using automated live coding, and teach programming with scripted guides.",
+  "version": "0.8.0",
+  "publisher": "okon3",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/okon3/auto-coder.git"
+  },
+  "homepage": "https://github.com/okon3/auto-coder/README.md",
+  "keywords": [
+    "automation",
+    "tutorials",
+    "vscode",
+    "editor",
+    "automated",
+    "type",
+    "typing",
+    "keyboard",
+    "coder",
+    "coding"
+  ],
+  "engines": {
+    "vscode": "^1.54.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*",
+    "onCommand:extension.playCodeScript",
+    "onCommand:extension.resetCodeScript"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.playCodeScript",
+        "title": "Play Code Script"
+      },
+      {
+        "command": "extension.resetCodeScript",
+        "title": "Restart Code Script"
+      },
+      {
+        "command": "extension.completeCodeScript",
+        "title": "Complete Code Script"
+      }
     ],
-    "engines": {
-        "vscode": "^1.54.0"
-    },
-    "categories": [
-        "Other"
-    ],
-    "activationEvents": [
-        "*",
-        "onCommand:extension.playCodeScript",
-        "onCommand:extension.resetCodeScript"
-    ],
-    "main": "./out/extension.js",
-    "contributes": {
-        "commands": [
-            {
-                "command": "extension.playCodeScript",
-                "title": "Play Code Script"
-            },
-            {
-                "command": "extension.resetCodeScript",
-                "title": "Restart Code Script"
-            },
-            {
-                "command": "extension.completeCodeScript",
-                "title": "Complete Code Script"
-            }
-        ],
-        "configuration": {
-            "type": "object",
-            "title": "Auto Coder",
-            "properties": {
-                "autoCoder.soundEffects": {
-                    "type": "string",
-                    "description": "Choose a type of sound effect to play when new characters are inserted (this can help give the effect of actual typing)",
-                    "default": "none",
-                    "enum": [
-                        "none",
-                        "macbook",
-                        "keyboard",
-                        "hacker"
-                    ]
-                },
-                "autoCoder.characterDelayBase": {
-                    "type": "number",
-                    "default": 20,
-                    "description": "Minimum milliseconds to delay between each character that's typed"
-                },
-                "autoCoder.characterDelayVariation": {
-                    "type": "number",
-                    "default": 80,
-                    "description": "In addition to the base delay, there can be a random delay (in milliseconds) between 0 and the number set here. Set this to 0 to have the same delay for each character typed"
-                }
-            }
+    "configuration": {
+      "type": "object",
+      "title": "Auto Coder",
+      "properties": {
+        "autoCoder.soundEffects": {
+          "type": "string",
+          "description": "Choose a type of sound effect to play when new characters are inserted (this can help give the effect of actual typing)",
+          "default": "none",
+          "enum": [
+            "none",
+            "macbook",
+            "keyboard",
+            "hacker"
+          ]
+        },
+        "autoCoder.characterDelayBase": {
+          "type": "number",
+          "default": 20,
+          "description": "Minimum milliseconds to delay between each character that's typed"
+        },
+        "autoCoder.characterDelayVariation": {
+          "type": "number",
+          "default": 80,
+          "description": "In addition to the base delay, there can be a random delay (in milliseconds) between 0 and the number set here. Set this to 0 to have the same delay for each character typed"
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "pretest": "npm run compile && npm run lint",
-        "lint": "eslint src --ext ts",
-        "test": "node ./out/test/runTest.js"
-    },
-    "devDependencies": {
-        "@types/glob": "^7.1.3",
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^12.20.6",
-        "@types/vscode": "^1.54.0",
-        "@typescript-eslint/eslint-plugin": "^4.18.0",
-        "@typescript-eslint/parser": "^4.18.0",
-        "eslint": "^7.22.0",
-        "glob": "^7.1.6",
-        "mocha": "^8.3.2",
-        "typescript": "^4.2.3",
-        "vscode-test": "^1.5.1"
-    },
-    "dependencies": {
-        "play-sound": "^1.1.3"
+      }
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^12.20.6",
+    "@types/vscode": "^1.54.0",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "eslint": "^7.22.0",
+    "glob": "^7.1.6",
+    "mocha": "^8.3.2",
+    "typescript": "^4.2.3",
+    "vscode-test": "^1.5.1"
+  },
+  "dependencies": {
+    "play-sound": "^1.1.3"
+  }
 }
